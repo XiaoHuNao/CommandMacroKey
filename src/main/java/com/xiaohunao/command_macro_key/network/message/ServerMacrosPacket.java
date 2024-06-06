@@ -1,7 +1,9 @@
 package com.xiaohunao.command_macro_key.network.message;
 
+import net.minecraft.commands.CommandSourceStack;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.MinecraftServer;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
 
@@ -26,9 +28,10 @@ public class ServerMacrosPacket {
         context.enqueueWork(() -> {
             ServerPlayer serverPlayer = context.getSender();
             if (serverPlayer == null) return;
-            MinecraftServer server = serverPlayer.getServer();
-            if (server == null) return;
-            server.getCommands().performPrefixedCommand(server.createCommandSourceStack(), msg.command);
+            CommandSourceStack commandSourceStack = new CommandSourceStack(serverPlayer, serverPlayer.position(), serverPlayer.getRotationVector(),
+                    serverPlayer.level() instanceof ServerLevel ? (ServerLevel) serverPlayer.level() : null,
+                    4, serverPlayer.getName().getString(), serverPlayer.getDisplayName(), serverPlayer.level().getServer(), serverPlayer);
+            serverPlayer.getServer().getCommands().performPrefixedCommand(commandSourceStack, msg.command);
         });
         context.setPacketHandled(true);
     }
