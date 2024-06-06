@@ -18,6 +18,5 @@ public class MacroRegistry {
 
     public static final RegistryObject<Macro> SINGLE_MACRO = MACRO.register("single", SingleMacro::new);
     public static final RegistryObject<Macro> DELAYED_MACRO = MACRO.register("delayed", DelayedMacro::new);
-    public static final RegistryObject<Macro> LOCATED_MACRO = MACRO.register("located", LocatedMacro::new);
     public static final RegistryObject<Macro> REPEATING_MACRO = MACRO.register("repeating", RepeatingMacro::new);
 }

@@ -10,13 +10,14 @@ public class DelayedMacro extends Macro{
             Codec.INT.fieldOf("modifierKey").forGetter(Macro::getModifierKey),
             Codec.STRING.fieldOf("command").forGetter(Macro::getCommand),
             Codec.BOOL.optionalFieldOf("hasOp",false).forGetter(Macro::hasOp),
+            Codec.STRING.optionalFieldOf("located","unknown").forGetter(Macro::getLocated),
             Codec.INT.fieldOf("delay").forGetter(DelayedMacro::getDelay)
     ).apply(instance, DelayedMacro::new));
 
     private final int delay;
 
-    public DelayedMacro(int primaryKey, int modifierKey, String command, boolean hasOp, int delay) {
-        super(primaryKey, modifierKey, command, hasOp);
+    public DelayedMacro(int primaryKey, int modifierKey, String command, boolean hasOp,String located, int delay) {
+        super(primaryKey, modifierKey, command, hasOp,located);
         this.delay = delay;
     }
 

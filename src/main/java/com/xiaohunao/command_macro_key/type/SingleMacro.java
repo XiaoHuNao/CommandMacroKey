@@ -8,12 +8,13 @@ public class SingleMacro extends Macro {
             Codec.INT.fieldOf("primaryKey").forGetter(Macro::getPrimaryKey),
             Codec.INT.fieldOf("modifierKey").forGetter(Macro::getModifierKey),
             Codec.STRING.fieldOf("command").forGetter(Macro::getCommand),
-            Codec.BOOL.optionalFieldOf("hasOp",false).forGetter(Macro::hasOp)
+            Codec.BOOL.optionalFieldOf("hasOp",false).forGetter(Macro::hasOp),
+            Codec.STRING.optionalFieldOf("located","unknown").forGetter(Macro::getLocated)
     ).apply(instance, SingleMacro::new));
 
 
-    public SingleMacro(int primaryKey, int modifierKey, String command, Boolean hasOp) {
-        super(primaryKey, modifierKey, command, hasOp);
+    public SingleMacro(int primaryKey, int modifierKey, String command,Boolean hasOp,String located) {
+        super(primaryKey, modifierKey, command, hasOp,located);
     }
 
     public SingleMacro() {

@@ -2,10 +2,16 @@ package com.xiaohunao.command_macro_key.type;
 
 import com.mojang.serialization.Codec;
 import com.xiaohunao.command_macro_key.CommandMacroKey;
+import com.xiaohunao.command_macro_key.Placeholder;
 import com.xiaohunao.command_macro_key.network.Messages;
 import com.xiaohunao.command_macro_key.network.message.ServerMacrosPacket;
+import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.world.level.storage.LevelResource;
 
+import java.util.Optional;
 import java.util.UUID;
 import java.util.function.Supplier;
 
@@ -20,13 +26,15 @@ public abstract class Macro {
     protected final String command;
     protected long timePressed = -1;
     protected Boolean hasOp;
+    protected String located;
     protected boolean isRemove;
 
-    public Macro(int primaryKey, int modifierKey, String command,Boolean hasOp) {
+    public Macro(int primaryKey, int modifierKey, String command,Boolean hasOp, String located) {
         this.primaryKey = primaryKey;
         this.modifierKey = modifierKey;
         this.command = command;
         this.hasOp = hasOp;
+        this.located = located;
     }
 
     public Macro() {
@@ -60,6 +68,9 @@ public abstract class Macro {
     public boolean isRemove() {
         return isRemove;
     }
+    public String getLocated() {
+        return located;
+    }
 
     public void setRemove(boolean remove) {
         isRemove = remove;
@@ -89,16 +100,22 @@ public abstract class Macro {
         }
     }
     public void execute(LocalPlayer player){
+        if (!this.located.equals(getCurrentLocation()) && !this.located.equals("unknown")) {
+            CommandMacroKey.LOGGER.error("Command macro address '{}' does not match location '{}'", this.located, getCurrentLocation());
+            return;
+        }
+
         String[] messages = command.split("\n");
         for (String message : messages) {
-            if (message.startsWith("/")) {
+            String replaced = Placeholder.replacePlaceholder(message, player);
+            if (replaced.startsWith("/")) {
                 if (hasOp) {
-                    Messages.NETWORK.sendToServer(new ServerMacrosPacket(message));
+                    Messages.NETWORK.sendToServer(new ServerMacrosPacket(replaced));
                 }else {
-                    player.connection.sendCommand(message.substring(1));
+                    player.connection.sendCommand(replaced.substring(1));
                 }
             } else {
-                player.connection.sendChat(message);
+                player.connection.sendChat(replaced);
             }
             this.isRemove = true;
         }
@@ -108,6 +125,20 @@ public abstract class Macro {
         return getPrimaryKey() == macro.getPrimaryKey() && getModifierKey() == macro.getModifierKey();
     }
 
+    public static String getCurrentLocation() {
+        Minecraft minecraftInstance = Minecraft.getInstance();
+        if (minecraftInstance.getConnection() == null) {
+            return "";
+        }
+
+        Optional<IntegratedServer> singlePlayerServer = Optional.ofNullable(minecraftInstance.getSingleplayerServer());
+        if (singlePlayerServer.isPresent()) {
+            return singlePlayerServer.get().getWorldPath(new LevelResource("")).toFile().getPath();
+        } else {
+            Optional<ServerData> currentServer = Optional.ofNullable(minecraftInstance.getCurrentServer());
+            return currentServer.map(serverData -> serverData.ip).orElse("");
+        }
+    }
     public abstract Codec<? extends Macro> codec();
     public abstract Macro type();
 }

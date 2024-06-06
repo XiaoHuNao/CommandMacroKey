@@ -44,5 +44,6 @@ public class CommandMacroKey {
     @SubscribeEvent
     public void onCommandRegister(RegisterCommandsEvent event) {
         MacroReloadCommand.register(event.getDispatcher());
+        Placeholder.init();
     }
 }

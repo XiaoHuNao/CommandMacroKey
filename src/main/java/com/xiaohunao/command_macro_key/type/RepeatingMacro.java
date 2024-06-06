@@ -10,6 +10,7 @@ public class RepeatingMacro extends Macro{
             Codec.INT.fieldOf("modifierKey").forGetter(Macro::getModifierKey),
             Codec.STRING.fieldOf("command").forGetter(Macro::getCommand),
             Codec.BOOL.optionalFieldOf("hasOp",false).forGetter(Macro::hasOp),
+            Codec.STRING.optionalFieldOf("located","unknown").forGetter(Macro::getLocated),
             Codec.INT.fieldOf("repeat").forGetter(RepeatingMacro::getRepeat),
             Codec.INT.fieldOf("interval").forGetter(RepeatingMacro::getInterval)
     ).apply(instance, RepeatingMacro::new));
@@ -18,8 +19,8 @@ public class RepeatingMacro extends Macro{
     private final int interval;
     private int remainingRepeat;
 
-    public RepeatingMacro(int primaryKey, int modifierKey, String command, boolean hasOp, int repeat, int interval) {
-        super(primaryKey, modifierKey, command, hasOp);
+    public RepeatingMacro(int primaryKey, int modifierKey, String command, boolean hasOp,String located, int repeat, int interval) {
+        super(primaryKey, modifierKey, command, hasOp,located);
         this.repeat = repeat;
         this.interval = interval;
     }
