@@ -10,6 +10,7 @@ import org.apache.commons.io.FileUtils;
 import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.charset.StandardCharsets;
+import java.util.Collection;
 import java.util.List;
 
 public class ModConfig {
@@ -36,7 +37,19 @@ public class ModConfig {
         try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
             String json = FileUtils.readFileToString(file, StandardCharsets.UTF_8);
             this.fileMacros.clear();
-            this.fileMacros.addAll(GSON.fromJson(json, getMacroListType()));
+            //判断是否是客户端配置文件
+            Object fromJson = GSON.fromJson(json, getMacroListType());
+            if (file.getName().contains("client")){
+                if (fromJson instanceof Collection) {
+                    ((Collection<?>) fromJson).forEach(o -> {
+                        if (o instanceof Macro macro) {
+                            macro.setHasOp(false);
+                        }
+                    });
+                }
+            }
+            this.fileMacros.addAll((Collection<? extends Macro>) fromJson);
+
         } catch (IOException e) {
             CommandMacroKey.LOGGER.error("Failed to load macros", e);
         }

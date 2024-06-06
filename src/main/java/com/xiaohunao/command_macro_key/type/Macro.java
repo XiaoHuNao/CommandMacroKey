@@ -75,6 +75,9 @@ public abstract class Macro {
         this.hasOp = hasOp;
         CommandMacroKey.MACRO_MANAGER.addMacro(this.getId(),this);
     }
+    public void setHasOp(boolean hasOp) {
+        this.hasOp = hasOp;
+    }
 
     public void tick(LocalPlayer localPlayer, long gameTime){
         if (timePressed == -1) {
@@ -86,17 +89,16 @@ public abstract class Macro {
         }
     }
     public void execute(LocalPlayer player){
-        String[] messages = command.split("(?<!\\\\)(?:\\\\\\\\)*\\\\n");
+        String[] messages = command.split("\n");
         for (String message : messages) {
-            String processedMessage = message.replace("\\\\n", "\\n");
-            if (processedMessage.startsWith("/")) {
+            if (message.startsWith("/")) {
                 if (hasOp) {
-                    Messages.NETWORK.sendToServer(new ServerMacrosPacket(processedMessage));
+                    Messages.NETWORK.sendToServer(new ServerMacrosPacket(message));
                 }else {
-                    player.connection.sendCommand(processedMessage.substring(1));
+                    player.connection.sendCommand(message.substring(1));
                 }
             } else {
-                player.connection.sendChat(processedMessage);
+                player.connection.sendChat(message);
             }
             this.isRemove = true;
         }
