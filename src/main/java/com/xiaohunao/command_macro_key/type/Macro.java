@@ -2,18 +2,22 @@ package com.xiaohunao.command_macro_key.type;
 
 import com.mojang.serialization.Codec;
 import com.xiaohunao.command_macro_key.CommandMacroKey;
-import com.xiaohunao.command_macro_key.Placeholder;
 import com.xiaohunao.command_macro_key.network.Messages;
 import com.xiaohunao.command_macro_key.network.message.ServerMacrosPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.server.IntegratedServer;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.storage.LevelResource;
 
 import java.util.Optional;
 import java.util.UUID;
+import java.util.function.Function;
 import java.util.function.Supplier;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
+
 
 public abstract class Macro {
     public static final Supplier<Codec<Macro>> CODEC = () -> MacroRegistry.REGISTRY.get().getCodec()
@@ -107,19 +111,34 @@ public abstract class Macro {
 
         String[] messages = command.split("\n");
         for (String message : messages) {
-            String replaced = Placeholder.replacePlaceholder(message, player);
-            if (replaced.startsWith("/")) {
+//            message = replacePlaceholder(message, player);
+            Pattern pattern = Pattern.compile("\\%([^%]+)\\%");
+            Matcher matcher = pattern.matcher(message);
+            String finalCommand = message;
+            while (matcher.find()) {
+                String group = matcher.group();
+                String placeholder = group.substring(1, group.length() - 1);
+                Function<Player, String> playerStringFunction = CommandMacroKey.placeholderMap.get(placeholder);
+                if (playerStringFunction != null) {
+                    finalCommand = finalCommand.replace(group,playerStringFunction.apply(player));
+                }
+            }
+            message = finalCommand;
+
+
+            if (message.startsWith("/")) {
                 if (hasOp) {
-                    Messages.NETWORK.sendToServer(new ServerMacrosPacket(replaced));
+                    Messages.NETWORK.sendToServer(new ServerMacrosPacket(message));
                 }else {
-                    player.connection.sendCommand(replaced.substring(1));
+                    player.connection.sendCommand(message.substring(1));
                 }
             } else {
-                player.connection.sendChat(replaced);
+                player.connection.sendChat(message);
             }
             this.isRemove = true;
         }
     }
+
 
     public boolean isSameMacro(Macro macro){
         return getPrimaryKey() == macro.getPrimaryKey() && getModifierKey() == macro.getModifierKey();
