@@ -1,4 +1,4 @@
-package com.xiaohunao.command_macro_key.type;
+package net.myworldzycpc.command_macro_key.type;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;

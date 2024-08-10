@@ -1,7 +1,6 @@
 {
   "pack": {
-    "description": "command_macro_key resources",
-    "pack_format": 15,
-    "forge:server_data_pack_format": 12
+    "description": "${mod_id} resources",
+    "pack_format": 22
   }
 }

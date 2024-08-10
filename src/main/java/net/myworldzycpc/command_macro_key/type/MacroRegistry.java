@@ -1,6 +1,6 @@
-package com.xiaohunao.command_macro_key.type;
+package net.myworldzycpc.command_macro_key.type;
 
-import com.xiaohunao.command_macro_key.CommandMacroKey;
+import net.myworldzycpc.command_macro_key.CommandMacroKey;
 import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;

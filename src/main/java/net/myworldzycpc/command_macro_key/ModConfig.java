@@ -1,10 +1,10 @@
-package com.xiaohunao.command_macro_key;
+package net.myworldzycpc.command_macro_key;
 
 import com.google.common.collect.Lists;
 import com.google.gson.*;
 import com.google.gson.reflect.TypeToken;
 import com.mojang.serialization.JsonOps;
-import com.xiaohunao.command_macro_key.type.Macro;
+import net.myworldzycpc.command_macro_key.type.Macro;
 import org.apache.commons.io.FileUtils;
 
 import java.io.*;

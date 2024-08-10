@@ -1,8 +1,9 @@
-package com.xiaohunao.command_macro_key.event;
+package net.myworldzycpc.command_macro_key.event;
 
-import com.xiaohunao.command_macro_key.CommandMacroKey;
-import com.xiaohunao.command_macro_key.MacroManager;
-import com.xiaohunao.command_macro_key.type.Macro;
+import net.minecraftforge.client.event.ClientChatEvent;
+import net.myworldzycpc.command_macro_key.CommandMacroKey;
+import net.myworldzycpc.command_macro_key.MacroManager;
+import net.myworldzycpc.command_macro_key.type.Macro;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.player.LocalPlayer;
@@ -33,7 +34,7 @@ public class ClientHandler {
 
         if (minecraft.level != null) {
             MacroManager macroManager = CommandMacroKey.MACRO_MANAGER;
-            Stream.of(macroManager.getClientMacros(), macroManager.getServerMacros())
+            Stream.of(macroManager.getClientMacros())
                     .flatMap(Collection::stream)
                     .forEach(macro -> {
                         if (macro.isKeyTriggered(key, modifiers)) {
@@ -67,5 +68,14 @@ public class ClientHandler {
             CommandMacroKey.MACRO_MANAGER.getMacros().clear();
         }
     }
+
+    @SubscribeEvent
+    public static void onClientChat(ClientChatEvent event) {
+        if (event.getMessage().equals("#macro reload")) {
+            CommandMacroKey.reloadMacros();
+            event.setCanceled(true);
+        }
+    }
+
 }
 
