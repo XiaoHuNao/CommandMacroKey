@@ -2,8 +2,6 @@ package com.xiaohunao.command_macro_key.type;
 
 import com.mojang.serialization.Codec;
 import com.xiaohunao.command_macro_key.CommandMacroKey;
-import com.xiaohunao.command_macro_key.network.Messages;
-import com.xiaohunao.command_macro_key.network.message.ServerMacrosPacket;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ServerData;
 import net.minecraft.client.player.LocalPlayer;
@@ -33,7 +31,7 @@ public abstract class Macro {
     protected String located;
     protected boolean isRemove;
 
-    public Macro(int primaryKey, int modifierKey, String command,Boolean hasOp, String located) {
+    public Macro(int primaryKey, int modifierKey, String command, Boolean hasOp, String located) {
         this.primaryKey = primaryKey;
         this.modifierKey = modifierKey;
         this.command = command;
@@ -55,12 +53,15 @@ public abstract class Macro {
     public Boolean hasOp() {
         return this.hasOp;
     }
+
     public int getPrimaryKey() {
         return primaryKey;
     }
+
     public int getModifierKey() {
         return modifierKey;
     }
+
     public String getCommand() {
         return command;
     }
@@ -72,6 +73,7 @@ public abstract class Macro {
     public boolean isRemove() {
         return isRemove;
     }
+
     public String getLocated() {
         return located;
     }
@@ -85,16 +87,18 @@ public abstract class Macro {
         int primaryKey = this.primaryKey;
         return key == primaryKey && modifiers == modifierKey;
     }
-    public void setPressed(long timePressed,boolean hasOp) {
+
+    public void setPressed(long timePressed, boolean hasOp) {
         this.timePressed = timePressed;
         this.hasOp = hasOp;
-        CommandMacroKey.MACRO_MANAGER.addMacro(this.getId(),this);
+        CommandMacroKey.MACRO_MANAGER.addMacro(this.getId(), this);
     }
+
     public void setHasOp(boolean hasOp) {
         this.hasOp = hasOp;
     }
 
-    public void tick(LocalPlayer localPlayer, long gameTime){
+    public void tick(LocalPlayer localPlayer, long gameTime) {
         if (timePressed == -1) {
             return;
         }
@@ -103,7 +107,8 @@ public abstract class Macro {
             execute(localPlayer);
         }
     }
-    public void execute(LocalPlayer player){
+
+    public void execute(LocalPlayer player) {
         if (!this.located.equals(getCurrentLocation()) && !this.located.equals("unknown")) {
             CommandMacroKey.LOGGER.error("Command macro address '{}' does not match location '{}'", this.located, getCurrentLocation());
             return;
@@ -120,27 +125,23 @@ public abstract class Macro {
                 String placeholder = group.substring(1, group.length() - 1);
                 Function<Player, String> playerStringFunction = CommandMacroKey.placeholderMap.get(placeholder);
                 if (playerStringFunction != null) {
-                    finalCommand = finalCommand.replace(group,playerStringFunction.apply(player));
+                    finalCommand = finalCommand.replace(group, playerStringFunction.apply(player));
                 }
             }
             message = finalCommand;
 
-
             if (message.startsWith("/")) {
-                if (hasOp) {
-                    Messages.NETWORK.sendToServer(new ServerMacrosPacket(message));
-                }else {
-                    player.connection.sendCommand(message.substring(1));
-                }
+                player.connection.sendCommand(message.substring(1));
             } else {
                 player.connection.sendChat(message);
             }
+
             this.isRemove = true;
         }
     }
 
 
-    public boolean isSameMacro(Macro macro){
+    public boolean isSameMacro(Macro macro) {
         return getPrimaryKey() == macro.getPrimaryKey() && getModifierKey() == macro.getModifierKey();
     }
 
@@ -158,6 +159,8 @@ public abstract class Macro {
             return currentServer.map(serverData -> serverData.ip).orElse("");
         }
     }
+
     public abstract Codec<? extends Macro> codec();
+
     public abstract Macro type();
 }

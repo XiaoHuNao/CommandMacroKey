@@ -1,18 +1,16 @@
 package com.xiaohunao.command_macro_key;
 
 import com.google.common.collect.Maps;
-import com.xiaohunao.command_macro_key.network.Messages;
 import com.xiaohunao.command_macro_key.type.MacroRegistry;
-import com.xiaohunao.command_macro_key.type.PlaceholderRegistry;
+import net.minecraft.client.Minecraft;
+import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.player.Player;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
-import net.minecraftforge.fml.event.lifecycle.FMLDedicatedServerSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -24,17 +22,16 @@ import java.util.function.Function;
 public class CommandMacroKey {
     public static final String MOD_ID = "command_macro_key";
     public static final MacroManager MACRO_MANAGER = MacroManager.getInstance();
-    public static final Map<String, Function<Player,String>> placeholderMap = Maps.newHashMap();
+    public static final Map<String, Function<Player, String>> placeholderMap = Maps.newHashMap();
     public static final Logger LOGGER = LogManager.getLogger(CommandMacroKey.class);
+    private static final Minecraft minecraft = Minecraft.getInstance();
 
     public CommandMacroKey() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
         MacroRegistry.MACRO.register(modEventBus);
 //        PlaceholderRegistry.PLACEHOLDER.register(modEventBus);
-        modEventBus.addListener(this::setupServer);
         modEventBus.addListener(this::setupClient);
         modEventBus.addListener(this::setupCommon);
-        MinecraftForge.EVENT_BUS.addListener(this::onCommandRegister);
         MinecraftForge.EVENT_BUS.register(this);
     }
 
@@ -42,19 +39,12 @@ public class CommandMacroKey {
         MACRO_MANAGER.initClient();
     }
 
-    private void setupServer(FMLDedicatedServerSetupEvent event) {
-        MACRO_MANAGER.initServer();
-    }
     @SubscribeEvent
     public void setupCommon(FMLCommonSetupEvent event) {
-        Messages.register();
         registerPlaceholder();
     }
-    @SubscribeEvent
-    public void onCommandRegister(RegisterCommandsEvent event) {
-        MacroReloadCommand.register(event.getDispatcher());
-    }
-    private void registerPlaceholder(){
+
+    private void registerPlaceholder() {
         placeholderMap.put("player_name", player -> player.getGameProfile().getName());
         placeholderMap.put("player_pos_x", player -> String.valueOf(player.getX()));
         placeholderMap.put("player_pos_y", player -> String.valueOf(player.getY()));
@@ -70,5 +60,12 @@ public class CommandMacroKey {
         placeholderMap.put("player_x_rot", player -> String.valueOf(player.getXRot()));
         placeholderMap.put("player_y_rot", player -> String.valueOf(player.getYRot()));
         placeholderMap.put("player_uuid", player -> player.getGameProfile().getId().toString());
+    }
+
+    public static void reloadMacros() {
+        MacroManager.reloadMacro();
+        if (minecraft.player != null) {
+            minecraft.player.sendSystemMessage(Component.literal("Macro has been reloaded!"));
+        }
     }
 }

@@ -1,18 +1,5 @@
 package com.xiaohunao.command_macro_key.type;
 
-import com.xiaohunao.command_macro_key.CommandMacroKey;
-import net.minecraft.core.Registry;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.resources.ResourceLocation;
-import net.minecraft.world.entity.player.Player;
-import net.minecraftforge.common.util.LazyOptional;
-import net.minecraftforge.registries.DeferredRegister;
-import net.minecraftforge.registries.IForgeRegistry;
-import net.minecraftforge.registries.RegistryBuilder;
-import net.minecraftforge.registries.RegistryObject;
-
-import java.util.function.Supplier;
-
 public class PlaceholderRegistry {
 //    public static final ResourceKey<Registry<Macro.Placeholder>> KEY = ResourceKey.createRegistryKey(new ResourceLocation(CommandMacroKey.MOD_ID,"placeholder"));
 //    public static final DeferredRegister<Macro.Placeholder> PLACEHOLDER = DeferredRegister.create(KEY, CommandMacroKey.MOD_ID);
